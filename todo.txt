@@ -1,0 +1,35 @@
+PRIORITY 0: BREAKING
+
+
+PRIORITY 1: IMPORTANT
+
+- timer
+
+- human move underpromotions
+   - dialog box
+
+- checkmate vs stalemate
+
+- draw adjudication, threefold, 50 move
+   - separate copy of engine source?
+
+- restart button on game over dialog box
+   - reset game to start pos
+
+PRIORITY 2: BETTER QOL
+
+- make little arrow for top and bottom of scroll bar??
+
+- no weird spacing of pv
+
+- (long) analysis mode would be nice
+
+- settings unified (includes players)
+
+- more types of windows!!!1
+
+- layouts
+
+PRIORITY 3: WOULD BE GOOD
+
+- make background removing script better, auto remove all files ending in "bg"
