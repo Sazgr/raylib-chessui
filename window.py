@@ -414,9 +414,34 @@ class Window:
         self.scroll_bar.interact()
 
 class Layout:
+    def __init__(self, windows):
+        self.windows = windows
+
+default_layout = Layout([
+    ("board", 40, 40, None, None, 40, False),
+    ("game_history", 1480, 40, 400, 800, 40, True),
+    ("players", 480, 40, None, None, 40, False),
+    ("search_data", 480, 200, 960, None, 40, False),
+    ("theme_library", 40, 480, None, 360, 40, True)
+])
+
+chess_com_layout = Layout([
+    ("board", 40, 120, None, None, 80, False),
+    ("game_history", 880, 400, 400, 800, 20, True),
+    #("players", 480, 40, None, None, 40, False),
+    ("search_data", 880, 40, 400, None, 20, False),
+    ("theme_library", 1320, 40, None, 360, 20, True)
+])
+
+class WindowManager:
     def __init__(self, board):
         self.windows = []
         self.board = board
         
     def add_window(self, window_type, x, y, width, height, font, scrollable):
         self.windows.append(Window(self.board, window_type, x, y, width, height, font, scrollable))
+    
+    def apply_layout(self, layout):
+        for window_args in layout.windows:
+            print(window_args)
+            self.add_window(*window_args)

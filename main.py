@@ -5,17 +5,18 @@ from color_profile import *
 from pyray import *
 from threading import Thread
 import time
-from window import Window, Layout
+from window import *
 
 class UI:
     def __init__(self):
         self.board = Board()
-        self.layout = Layout(self.board)
-        self.layout.add_window("board", 40, 40, None, None, 40, False)
-        self.layout.add_window("game_history", 1480, 40, 400, 800, 40, True)
-        self.layout.add_window("players", 480, 40, None, None, 40, False)
-        self.layout.add_window("search_data", 480, 200, 960, None, 40, False)
-        self.layout.add_window("theme_library", 40, 480, None, 360, 40, True)
+        self.window_manager = WindowManager(self.board)
+        self.window_manager.apply_layout(default_layout)
+        #self.window_manager.add_window("board", 40, 40, None, None, 40, False)
+        #self.window_manager.add_window("game_history", 1480, 40, 400, 800, 40, True)
+        #self.window_manager.add_window("players", 480, 40, None, None, 40, False)
+        #self.window_manager.add_window("search_data", 480, 200, 960, None, 40, False)
+        #self.window_manager.add_window("theme_library", 40, 480, None, 360, 40, True)
     
     def initialize(self):
         set_target_fps(60)
@@ -45,7 +46,7 @@ class UI:
             self.process_game_state()
     
     def interact(self):
-        for window in self.layout.windows:
+        for window in self.window_manager.windows:
             window.interact()
     
     def draw(self):
@@ -58,7 +59,7 @@ class UI:
             font = int(10 * screen_height / 128)
             draw_text(self.board.color_profile.background_text, font, screen_height - 2 * font, font, BLACK)
         
-        for window in self.layout.windows:
+        for window in self.window_manager.windows:
             window.draw()
         
         if (self.board.game_end):
