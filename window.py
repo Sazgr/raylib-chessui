@@ -96,6 +96,12 @@ class Window:
         elif self.window_type == "players":
             assert not self.scrollable
             self.draw_players(self.x, self.y, self.width, self.height, self.font)
+        elif self.window_type == "player_black":
+            assert not self.scrollable
+            self.draw_player_black(self.x, self.y, self.width, self.height, self.font)
+        elif self.window_type == "player_white":
+            assert not self.scrollable
+            self.draw_player_white(self.x, self.y, self.width, self.height, self.font)
         elif self.window_type == "search_data":
             assert not self.scrollable
             self.draw_search_data(self.x, self.y, self.width, self.height, self.font)
@@ -115,6 +121,12 @@ class Window:
         elif self.window_type == "players":
             assert not self.scrollable
             self.interact_players(self.x, self.y, self.width, self.height, self.font)
+        elif self.window_type == "player_black":
+            assert not self.scrollable
+            self.interact_player_black(self.x, self.y, self.width, self.height, self.font)
+        elif self.window_type == "player_white":
+            assert not self.scrollable
+            self.interact_player_white(self.x, self.y, self.width, self.height, self.font)
         elif self.window_type == "search_data":
             pass
         elif self.window_type == "theme_library":
@@ -131,56 +143,69 @@ class Window:
         draw_texture_pro(self.board.piece_texture, s_rec, d_rec, (0, 0), 0, piece_color)
     
     def draw_board(self, x, y, width, height, font, color_profile=None):
-        assert width == None
-        assert height == None
-        
         if color_profile == None:
             color_profile = self.board.color_profile
         
         pixel_size = font // 10
-        square_size = pixel_size * 10
-        size = square_size * 10
         
-        draw_rectangle(x, y, size, size, color_profile.neutral)
-        draw_rectangle(x + pixel_size, y + pixel_size, size - 2 * pixel_size, size - 2 * pixel_size, color_profile.fill)
+        draw_rectangle(x, y, width, height, color_profile.neutral)
+        draw_rectangle(x + pixel_size, y + pixel_size, width - 2 * pixel_size, height - 2 * pixel_size, color_profile.fill)
+        
+        base_size = 8 * font
+        board_size = ((min(width, height) - 2 * font) // base_size) * base_size
+        size = board_size + (2 * font)
+        square_size = board_size // 8
+        
+        x += (width - size) // 2
+        y += (height - size) // 2
+        
+        for i in range(8):
+            draw_text(str(8 - i), x + int(font * 0.7), y + int(square_size * i + font * 0.5 + (square_size - font) / 2), font, color_profile.neutral)
+        for j in range(8):
+            if board_size == base_size:
+                draw_text(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][j], x + int(square_size * j + font * 1.7), y + int(square_size * 8 + font * 0.5), font, color_profile.neutral)
+            else:
+                draw_text(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][j], x + int(square_size * j + font * 1.5 + (square_size - font) / 2), y + int(square_size * 8 + font * 0.5), font, color_profile.neutral)
+        
+        x += int(font * 1.5)
+        y += int(font * 0.4)
         
         with self.board.lock:
             if len(self.board.move_list) >= 2:
                 highlight_color = color_profile.black_hl_2 if len(self.board.move_list) % 2 else color_profile.white_hl_2
                 i, j = engine_util.square_to_coord(self.board.move_list[-2][0:2])
-                draw_rectangle(x + int(square_size * (i + 1.5)), y + int(square_size * (j + 0.4)), square_size, square_size, highlight_color)
+                draw_rectangle(x + int(square_size * i), y + int(square_size * j), square_size, square_size, highlight_color)
                 highlight_color = color_profile.black_hl if len(self.board.move_list) % 2 else color_profile.white_hl
                 i, j = engine_util.square_to_coord(self.board.move_list[-2][2:4])
-                draw_rectangle(x + int(square_size * (i + 1.5)), y + int(square_size * (j + 0.4)), square_size, square_size, highlight_color)
+                draw_rectangle(x + int(square_size * i), y + int(square_size * j), square_size, square_size, highlight_color)
             if len(self.board.move_list) >= 1:
                 highlight_color = color_profile.white_hl_2 if len(self.board.move_list) % 2 else color_profile.black_hl_2
                 i, j = engine_util.square_to_coord(self.board.move_list[-1][0:2])
-                draw_rectangle(x + int(square_size * (i + 1.5)), y + int(square_size * (j + 0.4)), square_size, square_size, highlight_color)
+                draw_rectangle(x + int(square_size * i), y + int(square_size * j), square_size, square_size, highlight_color)
                 highlight_color = color_profile.white_hl if len(self.board.move_list) % 2 else color_profile.black_hl
                 i, j = engine_util.square_to_coord(self.board.move_list[-1][2:4])
-                draw_rectangle(x + int(square_size * (i + 1.5)), y + int(square_size * (j + 0.4)), square_size, square_size, highlight_color)
+                draw_rectangle(x + int(square_size * i), y + int(square_size * j), square_size, square_size, highlight_color)
             
             self.board.board = engine_util.get_board_moves(self.board.engine.process, self.board.move_list)
         
         if self.board.selected != None:
             i, j = self.board.selected
-            draw_rectangle(x + int(square_size * (i + 1.5)), y + int(square_size * (j + 0.4)), square_size, square_size, color_profile.neutral_hl)
+            draw_rectangle(x + int(square_size * i), y + int(square_size * j), square_size, square_size, color_profile.neutral_hl)
             for move in self.board.valid_moves:
                 if move[:2] == engine_util.coord_to_square(i, j):
                     k, l = engine_util.square_to_coord(move[2:4])
-                    draw_rectangle(x + int(square_size * (k + 1.5)), y + int(square_size * (l + 0.4)), square_size, square_size, color_profile.neutral_hl_2)
+                    draw_rectangle(x + int(square_size * k), y + int(square_size * l), square_size, square_size, color_profile.neutral_hl_2)
+        
+        x += int(font * 0.2)
         
         for i in range(8):
-            draw_text(str(8 - i), x + int(square_size * 0.7), y + int(square_size * (i + 0.5)), square_size, color_profile.neutral)
             for j in range(8):
                 if (self.board.board[i][j] == '.'):
-                    draw_text(self.board.board[i][j], x + int(square_size * (j + 1.7)), y + square_size // 2 + square_size * i, square_size, color_profile.neutral)
+                    draw_text(self.board.board[i][j], x + int(square_size * j), y + square_size * i, square_size, color_profile.neutral)
                 elif (self.board.board[i][j].islower()):
-                    self._draw_piece(self.board.board[i][j], x + int(square_size * (j + 1.7)), y + square_size // 2 + square_size * i, square_size, color_profile.color_black)
+                    self._draw_piece(self.board.board[i][j], x + int(square_size * j), y + square_size * i, square_size, color_profile.color_black)
                 else:
-                    self._draw_piece(self.board.board[i][j], x + int(square_size * (j + 1.7)), y + square_size // 2 + square_size * i, square_size, color_profile.color_white)
-        for j in range(8):
-            draw_text(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][j], x + int(square_size * (j + 1.7)), y + int(square_size * 8.5), square_size, color_profile.neutral)
+                    self._draw_piece(self.board.board[i][j], x + int(square_size * j), y + square_size * i, square_size, color_profile.color_white)
     
     def draw_game_history(self, x, y, width, height, font, color_profile=None):
         if color_profile == None:
@@ -230,6 +255,46 @@ class Window:
         draw_text("black:", x + int(font * 0.7), y + int(font * 1.5), font, color_profile.color_black)
         draw_text("human", x + int(font * 5.7), y + int(font * 1.5), font, color_profile.color_black)
         draw_text("engine", x + int(font * 9.7), y + int(font * 1.5), font, color_profile.color_black)
+    
+    def draw_player_black(self, x, y, width, height, font, color_profile=None):
+        assert width == None
+        assert height == None
+        
+        if color_profile == None:
+            color_profile = self.board.color_profile
+        
+        pixel_size = font // 10
+        font = pixel_size * 10
+        width = font * 14
+        height = font * 2
+        
+        draw_rectangle(x, y, width, height, color_profile.neutral)
+        draw_rectangle(x + pixel_size, y + pixel_size, width - 2 * pixel_size, height - 2 * pixel_size, color_profile.fill)
+        
+        draw_rectangle(x + int(font * (4 * (not self.board.black_player) + 5.5)), y + int(font * 0.5), 4 * font, font, color_profile.black_hl)
+        draw_text("black:", x + int(font * 0.7), y + int(font * 0.5), font, color_profile.color_black)
+        draw_text("human", x + int(font * 5.7), y + int(font * 0.5), font, color_profile.color_black)
+        draw_text("engine", x + int(font * 9.7), y + int(font * 0.5), font, color_profile.color_black)
+    
+    def draw_player_white(self, x, y, width, height, font, color_profile=None):
+        assert width == None
+        assert height == None
+        
+        if color_profile == None:
+            color_profile = self.board.color_profile
+        
+        pixel_size = font // 10
+        font = pixel_size * 10
+        width = font * 14
+        height = font * 2
+        
+        draw_rectangle(x, y, width, height, color_profile.neutral)
+        draw_rectangle(x + pixel_size, y + pixel_size, width - 2 * pixel_size, height - 2 * pixel_size, color_profile.fill)
+        
+        draw_rectangle(x + int(font * (4 * (not self.board.white_player) + 5.5)), y + int(font * 0.5), 4 * font, font, color_profile.white_hl)
+        draw_text("white:", x + int(font * 0.7), y + int(font * 0.5), font, color_profile.color_white)
+        draw_text("human", x + int(font * 5.7), y + int(font * 0.5), font, color_profile.color_white)
+        draw_text("engine", x + int(font * 9.7), y + int(font * 0.5), font, color_profile.color_white)
     
     def draw_search_data(self, x, y, width, height, font, color_profile=None):
         assert height == None
@@ -325,8 +390,7 @@ class Window:
         self.scroll_bar.draw(color_profile)
     
     def interact_board(self, x, y, width, height, font):
-        assert width == None
-        assert height == None
+        assert width == height
         
         if self.board.searching:
             self.board.selected = None
@@ -387,6 +451,38 @@ class Window:
                 elif y + int(font * 1.5) <= mouse_y and mouse_y < y + int(font * 2.5):
                     self.board.black_player = not self.board.black_player
     
+    def interact_player_black(self, x, y, width, height, font):
+        assert width == None
+        assert height == None
+        
+        font = (font // 10) * 10
+        width = font * 14
+        height = font * 2
+        
+        if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+            mouse_pos = get_mouse_position()
+            mouse_x = mouse_pos.x
+            mouse_y = mouse_pos.y
+            
+            if x + int(font * 5.5) <= mouse_x and mouse_x < x + int(font * 13.5) and y + int(font * 0.5) <= mouse_y and mouse_y < y + int(font * 1.5):
+                self.board.black_player = not self.board.black_player
+    
+    def interact_player_white(self, x, y, width, height, font):
+        assert width == None
+        assert height == None
+        
+        font = (font // 10) * 10
+        width = font * 14
+        height = font * 2
+        
+        if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+            mouse_pos = get_mouse_position()
+            mouse_x = mouse_pos.x
+            mouse_y = mouse_pos.y
+            
+            if x + int(font * 5.5) <= mouse_x and mouse_x < x + int(font * 13.5) and y + int(font * 0.5) <= mouse_y and mouse_y < y + int(font * 1.5):
+                self.board.white_player = not self.board.white_player
+    
     def interact_theme_library(self, x, y, width, height, font):
         assert width == None
         
@@ -426,11 +522,13 @@ default_layout = Layout([
 ])
 
 chess_com_layout = Layout([
-    ("board", 40, 120, None, None, 80, False),
-    ("game_history", 880, 400, 400, 800, 20, True),
+    ("board", 40, 160, 720, 720, 40, False),
+    ("game_history", 800, 320, 400, 720, 40, True),
     #("players", 480, 40, None, None, 40, False),
-    ("search_data", 880, 40, 400, None, 20, False),
-    ("theme_library", 1320, 40, None, 360, 20, True)
+    ("player_black", 40, 40, None, None, 40, False),
+    ("player_white", 40, 920, None, None, 40, False),
+    ("search_data", 800, 40, 1080, None, 40, False),
+    ("theme_library", 1240, 320, None, 360, 40, True)
 ])
 
 class WindowManager:
