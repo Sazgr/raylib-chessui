@@ -11,7 +11,7 @@ class UI:
     def __init__(self):
         self.board = Board()
         self.window_manager = WindowManager(self.board)
-        self.window_manager.apply_layout(chess_com_layout)
+        self.window_manager.apply_layout(default_layout)
         #self.window_manager.add_window("board", 40, 40, None, None, 40, False)
         #self.window_manager.add_window("game_history", 1480, 40, 400, 800, 40, True)
         #self.window_manager.add_window("players", 480, 40, None, None, 40, False)

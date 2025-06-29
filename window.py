@@ -201,7 +201,8 @@ class Window:
                     k, l = engine_util.square_to_coord(move[2:4])
                     draw_rectangle(x + int(square_size * k), y + int(square_size * l), square_size, square_size, color_profile.neutral_hl_2)
         
-        x += int(font * 0.2)
+        x += int(square_size * 0.2)
+        y += int(square_size * 0.1)
         
         for i in range(8):
             for j in range(8):
@@ -403,13 +404,28 @@ class Window:
             self.board.selected = None
             return
         
+        if width == None:
+            width = font * 10
+        if height == None:
+            height = font * 10
+        
+        pixel_size = font // 10
+        
+        base_size = 8 * font
+        board_size = ((min(width, height) - 2 * font) // base_size) * base_size
+        size = board_size + (2 * font)
+        square_size = board_size // 8
+        
+        x += (width - size) // 2 + int(font * 1.5)
+        y += (height - size) // 2 + int(font * 0.4)
+        
         if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
             mouse_pos = get_mouse_position()
             mouse_x = mouse_pos.x
             mouse_y = mouse_pos.y
             
-            ind_x = int(mouse_x - x - font * 1.5) // font
-            ind_y = int(mouse_y - y - font * 0.5) // font
+            ind_x = int(mouse_x - x) // square_size
+            ind_y = int(mouse_y - y) // square_size
             
             if 0 <= ind_x and ind_x < 8 and 0 <= ind_y and ind_y < 8:
                 if self.board.selected == None:
@@ -524,7 +540,7 @@ default_layout = Layout([
     ("game_history", 1480, 40, 400, 800, 40, True),
     ("players", 480, 40, None, None, 40, False),
     ("search_data", 480, 200, 960, None, 40, False),
-    ("theme_library", 40, 480, None, 360, 40, True)
+    ("theme_library", 40, 480, 720, 360, 40, True)
 ])
 
 chess_com_layout = Layout([
