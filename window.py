@@ -84,7 +84,7 @@ class Window:
             if self.window_type == "game_history":
                 self.scroll_bar = ScrollBar(self.board, x + width - font, y, height, font, height // font - 1, max(1, (len(self.board.move_list) + 1) // 2))
             if self.window_type == "theme_library":
-                self.scroll_bar = ScrollBar(self.board, x + font * 17, y + font, height - font, font, height // font - 2, len(theme_library))
+                self.scroll_bar = ScrollBar(self.board, x + width - font, y + font, height - font, font, height // font - 2, len(theme_library))
     
     def draw(self):
         if self.window_type == "board":
@@ -143,6 +143,11 @@ class Window:
         draw_texture_pro(self.board.piece_texture, s_rec, d_rec, (0, 0), 0, piece_color)
     
     def draw_board(self, x, y, width, height, font, color_profile=None):
+        if width == None:
+            width = font * 10
+        if height == None:
+            height = font * 10
+        
         if color_profile == None:
             color_profile = self.board.color_profile
         
@@ -365,14 +370,13 @@ class Window:
                         x_position += 4 * font
     
     def draw_theme_library(self, x, y, width, height, font, color_profile=None):
-        assert width == None
-        
         if color_profile == None:
             color_profile = self.board.color_profile
         
         pixel_size = font // 10
         font = pixel_size * 10
-        width = 18 * font
+        if width == None:
+            width = 18 * font
         height = (height // font) * font
         scroll_index = self.scroll_bar.get_index()
         
@@ -382,16 +386,19 @@ class Window:
         draw_text("themes", x + int(font * 0.7), y + int(font * 0.5), font, color_profile.neutral)
         for i in range(min(len(theme_library), self.scroll_bar.shown)):
             if theme_library[scroll_index + i].background_text == color_profile.background_text:
-                draw_rectangle(x + int(font * 0.5), y + int(font * (1.5 + i)), int(font * 11), font, color_profile.neutral_hl)
+                draw_rectangle(x + int(font * 0.5), y + int(font * (1.5 + i)), int(width - 7 * font), font, color_profile.neutral_hl)
             
-            draw_text("- " + theme_library[scroll_index + i].background_text, x + int(font * 0.7), y + int(font * (1.5 + i)), font, color_profile.neutral)
-            theme_library[scroll_index + i].draw(x + int(font * 12.2), y + int(font * (1.5 + i)), font, color_profile)
+            text_to_draw = theme_library[scroll_index + i].background_text
+            if measure_text(text_to_draw, font) >= width - 7.5 * font:
+                while measure_text(text_to_draw + "...", font) >= width - 7.5 * font:
+                    text_to_draw = text_to_draw[:-1]
+            
+            draw_text(text_to_draw + "...", x + int(font * 0.7), y + int(font * (1.5 + i)), font, color_profile.neutral)
+            theme_library[scroll_index + i].draw(x + int(width - font * 5.8), y + int(font * (1.5 + i)), font, color_profile)
         
         self.scroll_bar.draw(color_profile)
     
     def interact_board(self, x, y, width, height, font):
-        assert width == height
-        
         if self.board.searching:
             self.board.selected = None
             return
@@ -484,11 +491,10 @@ class Window:
                 self.board.white_player = not self.board.white_player
     
     def interact_theme_library(self, x, y, width, height, font):
-        assert width == None
-        
         pixel_size = font // 10
         font = pixel_size * 10
-        width = 17 * font
+        if width == None:
+            width = 18 * font
         rows = height // font - 1
         height = (height // font) * font
         scroll_index = self.scroll_bar.get_index()
@@ -498,7 +504,7 @@ class Window:
         
         if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
             for i in range(min(len(theme_library), rows - 1)):
-                if x + int(font * 0.5) <= mouse_x and mouse_x < x + int(font * 11.5) and y + int(font * (1.5 + i)) <= mouse_y and mouse_y < y + int(font * (2.5 + i)):
+                if x + int(font * 0.5) <= mouse_x and mouse_x < x + int(width - font * 6.5) and y + int(font * (1.5 + i)) <= mouse_y and mouse_y < y + int(font * (2.5 + i)):
                     self.board.color_profile = theme_library[scroll_index + i]
                     if self.board.color_profile.background_image != None:
                         background_image = load_image(self.board.color_profile.background_image)
@@ -522,13 +528,12 @@ default_layout = Layout([
 ])
 
 chess_com_layout = Layout([
-    ("board", 40, 160, 720, 720, 40, False),
+    ("board", 40, 160, 720, 760, 40, False),
     ("game_history", 800, 320, 400, 720, 40, True),
-    #("players", 480, 40, None, None, 40, False),
     ("player_black", 40, 40, None, None, 40, False),
-    ("player_white", 40, 920, None, None, 40, False),
+    ("player_white", 40, 960, None, None, 40, False),
     ("search_data", 800, 40, 1080, None, 40, False),
-    ("theme_library", 1240, 320, None, 360, 40, True)
+    ("theme_library", 1240, 320, 640, 720, 40, True)
 ])
 
 class WindowManager:

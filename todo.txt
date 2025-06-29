@@ -3,6 +3,10 @@ PRIORITY 0: BREAKING
 
 PRIORITY 1: IMPORTANT
 
+- center rank and file names correctly
+
+- show mate scores correctly
+
 - timer
 
 - human move underpromotions
@@ -28,7 +32,7 @@ PRIORITY 2: BETTER QOL
 
 - more types of windows!!!1
 
-- layouts
+- layout switching in program
 
 PRIORITY 3: WOULD BE GOOD
 
