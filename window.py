@@ -535,7 +535,7 @@ class Layout:
     def __init__(self, windows):
         self.windows = windows
 
-default_layout = Layout([
+layout_1 = Layout([
     ("board", 40, 40, None, None, 40, False),
     ("game_history", 1480, 40, 400, 800, 40, True),
     ("players", 480, 40, None, None, 40, False),
@@ -543,7 +543,7 @@ default_layout = Layout([
     ("theme_library", 40, 480, 720, 360, 40, True)
 ])
 
-chess_com_layout = Layout([
+layout_2 = Layout([
     ("board", 40, 160, 720, 760, 40, False),
     ("game_history", 800, 320, 400, 720, 40, True),
     ("player_black", 40, 40, None, None, 40, False),

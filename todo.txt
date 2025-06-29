@@ -3,8 +3,6 @@ PRIORITY 0: BREAKING
 
 PRIORITY 1: IMPORTANT
 
-- center rank and file names correctly
-
 - show mate scores correctly
 
 - timer
